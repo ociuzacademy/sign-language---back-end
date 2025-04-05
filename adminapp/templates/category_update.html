@@ -1,0 +1,73 @@
+{% extends 'admin_index.html' %}
+
+{% block content %}
+<br>
+<br>
+<br>
+<br>
+<div class="container">
+    <h2>Edit Category</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="name" style="color: white;">Name</label>
+
+            <input type="text" class="form-control" id="name" name="name" 
+                   value="{{ category.name }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="image" style="color:white;">Image</label>
+            <input type="file" class="form-control-file" id="image" name="image">
+            {% if category.image %}
+            <div class="mt-2">
+                <img src="{{ category.image.url }}" alt="Current image" style="max-height: 100px;">
+                <div class="form-check mt-2">
+                    <input type="checkbox" class="form-check-input" id="clear_image" name="clear_image">
+                    <label class="form-check-label" for="clear_image" style="color:white;">Clear current image</label>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="number"  style="color:white;">Number</label>
+            <input type="number" class="form-control" id="number" name="number" 
+                   value="{{ category.number|default:'' }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="description" style="color:white;">Description</label>
+            <textarea class="form-control" id="description" name="description" 
+                      rows="3">{{ category.description }}</textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Update Category
+            </button>
+            <a href="{% url 'category_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    img {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5px;
+    }
+</style>
+{% endblock %}

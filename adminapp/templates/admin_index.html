@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            color: #2d3748;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Container-Shaped Navbar */
+        .navbar {
+            background: #928dab;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .navbar .icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar .icons a {
+            color: #000000;
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+
+        /* Hamburger Menu Button */
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: transparent;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn span {
+            position: relative;
+            width: 32px;
+            height: 4px;
+            background: rgb(255, 255, 255);
+            border-radius: 2px;
+        }
+
+        .menu-btn span::before,
+        .menu-btn span::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: rgb(255, 255, 255);
+            border-radius: 2px;
+        }
+
+        .menu-btn span::before {
+            transform: translateY(-10px);
+        }
+
+        .menu-btn span::after {
+            transform: translateY(10px);
+        }
+
+        /* Active state animation */
+        .menu-btn.active span {
+            background: transparent;
+        }
+
+        .menu-btn.active span::before {
+            transform: rotate(45deg);
+        }
+
+        .menu-btn.active span::after {
+            transform: rotate(-45deg);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #928dab;
+            padding: 20px;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: -250px;
+            height: 94vh;
+            z-index: 1000;
+            border-radius: 0 20px 20px 0;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 30px;
+        }
+
+        .sidebar nav {
+            width: 100%;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            color: #000000;
+            text-decoration: none;
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 100px;
+            margin-bottom: 60px;
+        }
+
+        .admin-container {
+            background: #928dab;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #000000;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: rgb(218, 218, 218);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            color: #718096;
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: #928dab;
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+
+        .footer p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #2d3748;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        a .card {
+            display: block;
+        }
+
+        /* Style the dropdown container */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Dropdown link styling */
+        .dropdown-link {
+            text-decoration: none;
+            color: black;
+            padding: 10px 15px;
+            display: block;
+        }
+
+        /* Dropdown content (hidden by default) */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        /* Links inside dropdown */
+        .dropdown-content a {
+            color: black;
+            padding: 10px 15px;
+            display: block;
+            text-decoration: none;
+        }
+
+        /* Hover effect */
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Show dropdown on hover */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Container-Shaped Navbar -->
+    <div class="navbar">
+        <div class="logo">Admin Panel</div>
+        <div class="icons">
+            <a href="{% url 'admin_index' %}" title="Home"><i class="fas fa-home"></i></a>
+            <a href="{% url 'login' %}" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </div>
+
+    <!-- Hamburger Menu Button -->
+    <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()">
+        <span></span>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h1>Admin Panel</h1>
+        <nav>
+            <a href="{% url 'admin_index' %}">Dashboard</a>
+            <a href="{% url 'add_category' %}">Categories</a>
+            <a href="{% url 'lesson_list' %}">Lessons</a>
+            <a href="{% url 'manage_levels' %}">Levels</a>
+
+            <!-- FAQ Dropdown -->
+            <div class="dropdown">
+                <a href="#" class="dropdown-link">FAQ Management ▼</a>
+                <div class="dropdown-content">
+                    <a href="{% url 'add_faq' %}">Add FAQ</a>
+                    <a href="{% url 'faq_list' %}">View FAQs</a>
+                </div>
+            </div>
+
+            <a href="#">Settings</a>
+        </nav>
+
+        <button class="logout-btn" onclick="window.location.href='#'">Logout</button>
+    </div>
+    {% block content %}
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="admin-container">
+            <h2>Welcome Back, Admin!</h2>
+            <div class="card-container">
+                <!-- Categories Card -->
+                <a href="{% url 'add_category' %}">
+                    <div class="card">
+                        <h3>Categories</h3>
+                        <p>Manage your content categories.</p>
+                    </div>
+                </a>
+
+                <!-- View Categories Card -->
+                <a href="{% url 'category_list' %}">
+                    <div class="card">
+                        <h3>Manage Categories</h3>
+                        <p>View, edit, and delete categories.</p>
+                    </div>
+                </a>
+
+                <!-- Lessons Card -->
+                <a href="{% url 'add_lesson' %}">
+                    <div class="card">
+                        <h3>Lessons</h3>
+                        <p>Create, edit, and manage lessons.</p>
+                    </div>
+                </a>
+
+                <!-- Users Card -->
+                <a href="{% url 'lesson_list' %}">
+                    <div class="card">
+                        <h3>Manage Lessons</h3>
+                        <p>View and manage lessons.</p>
+                    </div>
+                </a>
+
+                <!-- Analytics Card -->
+                <a href="{% url 'add_question' %}">
+                    <div class="card">
+                        <h3>Add Question</h3>
+                        <p>Add questions for users.</p>
+                    </div>
+                </a>
+
+                <a href="{% url 'survey_list' %}">
+                    <div class="card">
+                        <h3>View Questions</h3>
+                        <p>View and delete questions.</p>
+                    </div>
+                </a>
+
+                <!-- Quiz Creation Card -->
+                <a href="{% url 'create_quiz' %}">
+                    <div class="card">
+                        <h3>Create Quiz</h3>
+                        <p>Create new level-based quizzes</p>
+                    </div>
+                </a>
+
+                <!-- Quiz Management Card -->
+                <a href="{% url 'view_all_levels' %}">
+                    <div class="card">
+                        <h3>Manage Quizzes</h3>
+                        <p>View, edit, and delete quizzes</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2023 Admin Panel. All rights reserved.</p>
+    </div>
+    {% endblock %}
+    <script>
+        // Function to toggle the sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.getElementById('menuBtn');
+            sidebar.classList.toggle('active');
+            menuBtn.classList.toggle('active');
+
+            if (sidebar.classList.contains('active')) {
+                menuBtn.style.left = '270px';
+            } else {
+                menuBtn.style.left = '20px';
+            }
+        }
+    </script>
+</body>
+
+</html>

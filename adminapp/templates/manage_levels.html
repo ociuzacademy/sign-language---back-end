@@ -1,0 +1,101 @@
+{% extends 'admin_index.html' %}
+
+{% block content %}
+<br><br><br>
+<div class="container mt-5">
+    <h1 style="color: white;">Manage Levels</h1>
+    
+    <!-- Success/Error Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Add Level Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{% if edit_mode %}Edit Level{% else %}Add New Level{% endif %}</h5>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if edit_mode %}
+                    <input type="hidden" name="level_id" value="{{ level_to_edit.id }}">
+                {% endif %}
+                <div class="mb-3">
+                    <label for="name" class="form-label">Level Name</label>
+                    <input type="text" class="form-control" id="name" name="name" 
+                           value="{% if edit_mode %}{{ level_to_edit.name }}{% endif %}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="icon" class="form-label">Level Icon</label>
+                    <input type="file" class="form-control" id="icon" name="icon">
+                    {% if edit_mode and level_to_edit.icon %}
+                        <div class="mt-2">
+                            <small>Current icon:</small>
+                            <img src="{{ level_to_edit.icon.url }}" alt="{{ level_to_edit.name }}" style="max-height: 30px;" class="ms-2">
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    {% if edit_mode %}Update Level{% else %}Add Level{% endif %}
+                </button>
+                {% if edit_mode %}
+                    <a href="{% url 'manage_levels' %}" class="btn btn-secondary">Cancel</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    
+    <!-- Levels List -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Existing Levels</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Icon</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for level in levels %}
+                    <tr>
+                        <td>{{ level.name }}</td>
+                        <td>
+                            {% if level.icon %}
+                            <img src="{{ level.icon.url }}" alt="{{ level.name }}" style="max-height: 30px;">
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'edit_level' level.id %}" class="btn btn-sm btn-warning">Edit</a>
+
+                            <a href="{% url 'delete_level' level.id %}" class="btn btn-sm btn-danger" 
+                               onclick="return confirm('Are you sure you want to delete this level?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">No levels found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+.icons-container a i {
+    font-size: 24px; /* Increase size */
+    color: white !important;
+    transition: none; /* Remove hover effects */
+}
+
+.icons-container a:hover i {
+    color: white !important; /* Ensure no hover color change */
+}
+</style>
+{% endblock %}

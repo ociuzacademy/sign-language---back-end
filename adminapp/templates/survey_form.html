@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add Question</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #928dab;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1f1c2c 0%, var(--primary-color) 100%);
+            min-height: 100vh;
+        }
+
+        h2 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #questionForm {
+            background: rgba(255, 255, 255, 0.95);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-block {
+            border: 1px solid var(--primary-color);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(146, 141, 171, 0.5);
+        }
+
+        .question-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--primary-color);
+            color: #fff;
+            border-radius: 10px 10px 0 0;
+            padding: 10px 20px;
+        }
+
+        .question-heading h3 {
+            margin: 0;
+        }
+
+        .delete-question {
+            background: red;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question-content {
+            padding: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            color: #34495e;
+            font-weight: 600;
+        }
+
+        select,
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ecf0f1;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus,
+        textarea:focus,
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1f1c2c 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h4 {
+            color: #2c3e50;
+            margin: 20px 0 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .custom-file-input {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .custom-file-input input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-input label {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .file-chosen {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .preview {
+            display: none;
+            margin-top: 10px;
+            max-width: 100px;
+        }
+
+        .icons-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .icons-container a {
+            color: #fff;
+            font-size: 24px;
+            transition: color 0.3s ease;
+        }
+
+        .icons-container a:hover {
+            color: #928dab;
+        }
+
+        .success-message {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Previous styles remain the same */
+        .level-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .level-selector select {
+            flex: 1;
+        }
+
+        .level-selector button {
+            width: auto;
+            padding: 10px 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="icons-container">
+            <a href="{% url 'admin_index' %}" title="Home"><i class="fas fa-home"></i></a>
+            <a href="{% url 'login' %}" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+
+        <h2>Add Questions</h2>
+
+        {% if messages %}
+        <div class="success-message" id="successMessage">
+            {% for message in messages %}
+            {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" id="questionForm">
+            {% csrf_token %}
+            <div id="questionsContainer">
+                <!-- Survey Title -->
+                <div class="question-block">
+                    <div class="question-heading">
+                        <h3>Survey Information</h3>
+                    </div>
+                    <label>Survey Title (Optional):</label>
+                    <input type="text" name="survey_title">
+
+                    <label for="category">Category:</label>
+                    <select name="category" id="category" required>
+                        <option value="">Select Category</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="level">Level:</label>
+                    <select name="level" id="level" required>
+                        <option value="">Select Level</option>
+                        {% for level in levels %}
+                        <option value="{{ level.id }}">{{ level.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    
+                </div>
+
+                <!-- Question #1 -->
+                <div class="question-block">
+                    <div class="question-heading">
+                        <h3>Question 1</h3>
+                        <button type="button" class="delete-question" style="display: none;">X</button>
+                    </div>
+                    <div class="question-content">
+                        <label>Question Text (Optional):</label>
+                        <textarea name="text_1"></textarea>
+
+                        <label>Question Image (Optional):</label>
+                        <input type="file" name="image_1" accept="image/*">
+
+                        <h4>Options</h4>
+                        {% for i in "1234"|make_list %}
+                        <label>Option {{ i }} Text (Optional):</label>
+                        <input type="text" name="option_text_1_{{ i }}">
+
+                        <label>Option {{ i }} Image (Optional):</label>
+                        <input type="file" name="option_image_1_{{ i }}" accept="image/*">
+                        {% endfor %}
+
+                        <label>Correct Answer (Required):</label>
+                        <select name="correct_answer_1" required>
+                            <option value="">Select Correct Answer</option>
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                            <option value="4">Option 4</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="addQuestion">Add Another Question</button>
+            <button type="submit">Save Questions</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Show success message if it exists
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            }
+
+            // Fetch lessons based on category and level
+            document.getElementById("fetch-lessons-btn").addEventListener("click", function (event) {
+                event.preventDefault();
+                const categoryId = document.getElementById("category").value;
+                const levelId = document.getElementById("level").value;
+
+                if (!categoryId || !levelId) {
+                    alert("Please select both category and level first.");
+                    return;
+                }
+
+                fetch(`/get-lessons/${categoryId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            const lessonSelect = document.getElementById("lesson");
+                            lessonSelect.innerHTML = '<option value="">Select Lesson (Optional)</option>';
+
+                            // Filter lessons by selected level
+                            const filteredLessons = data.lessons.filter(lesson =>
+                                lesson.level_id && lesson.level_id.toString() === levelId
+                            );
+
+                            if (filteredLessons.length === 0) {
+                                lessonSelect.innerHTML += '<option value="" disabled>No lessons found for this level</option>';
+                            } else {
+                                filteredLessons.forEach(lesson => {
+                                    lessonSelect.innerHTML += `<option value="${lesson.id}">${lesson.name}</option>`;
+                                });
+                            }
+                        } else {
+                            alert("Error loading lessons: " + (data.message || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching lessons:", error);
+                        alert("Error fetching lessons");
+                    });
+            });
+
+            // Rest of your existing JavaScript remains the same
+            // (file input handling, question management, etc.)
+        });
+
+        // Function to update file inputs with file name and preview
+        function updateFileInputs(container) {
+            container.querySelectorAll('input[type="file"]').forEach(function (input) {
+                const fileChosenSpan = document.createElement('span');
+                fileChosenSpan.className = 'file-chosen';
+                input.addEventListener('change', function () {
+                    if (this.files && this.files.length > 0) {
+                        fileChosenSpan.textContent = this.files[0].name;
+                    } else {
+                        fileChosenSpan.textContent = 'No file chosen';
+                    }
+
+                    if (this.nextElementSibling && this.nextElementSibling.className === 'file-chosen') {
+                        this.nextElementSibling.remove();
+                    }
+                    this.parentNode.insertBefore(fileChosenSpan, this.nextSibling);
+                });
+            });
+        }
+
+        // Initialize file input listeners
+        updateFileInputs(document);
+
+        // Function to re-index questions after deletion or addition
+        function reindexQuestions() {
+            const questions = document.querySelectorAll(".question-block");
+            questions.forEach((question, index) => {
+                if (index === 0) return; // Skip the survey title block
+
+                const newQNum = index; // Start from 1
+                const heading = question.querySelector(".question-heading h3");
+                if (heading) {
+                    heading.textContent = `Question ${newQNum}`;
+                }
+
+                // Update names for all fields
+                const fields = question.querySelectorAll("select, textarea, input");
+                fields.forEach(field => {
+                    if (field.name) {
+                        // Option fields like option_text_1_1 or option_image_1_1
+                        let optionMatch = field.name.match(/^(.*)_([0-9]+)_([0-9]+)$/);
+                        if (optionMatch) {
+                            field.name = `${optionMatch[1]}_${newQNum}_${optionMatch[3]}`;
+                        } else {
+                            // Other fields like text_1, image_1, correct_answer_1
+                            let normalMatch = field.name.match(/^(.*)_([0-9]+)$/);
+                            if (normalMatch) {
+                                field.name = `${normalMatch[1]}_${newQNum}`;
+                            }
+                        }
+                    }
+                });
+
+                // Hide delete button for question 1; show for others
+                const deleteBtn = question.querySelector(".delete-question");
+                if (newQNum === 1) {
+                    deleteBtn.style.display = "none";
+                } else {
+                    deleteBtn.style.display = "flex";
+                }
+            });
+        }
+
+        // Delegate delete button click events
+        document.getElementById("questionsContainer").addEventListener("click", function (e) {
+            if (e.target.classList.contains("delete-question")) {
+                const container = document.getElementById("questionsContainer");
+                if (container.children.length > 2) { // Keep at least one question + survey block
+                    e.target.closest(".question-block").remove();
+                    reindexQuestions();
+                } else {
+                    alert("At least one question is required.");
+                }
+            }
+        });
+
+        // Function to add new question
+        document.getElementById("addQuestion").addEventListener("click", function () {
+            const container = document.getElementById("questionsContainer");
+            const newQuestionNumber = container.children.length; // Start from 1
+            let newQuestion = document.createElement("div");
+            newQuestion.classList.add("question-block");
+            newQuestion.innerHTML = `
+                    <div class="question-heading">
+                        <h3>Question ${newQuestionNumber}</h3>
+                        <button type="button" class="delete-question">X</button>
+                    </div>
+                    <div class="question-content">
+                        <label>Question Text (Optional):</label>
+                        <textarea name="text_${newQuestionNumber}"></textarea>
+                        <label>Question Image (Optional):</label>
+                        <input type="file" name="image_${newQuestionNumber}" accept="image/*">
+                        <h4>Options</h4>
+                        ${[1, 2, 3, 4].map(i => `
+                            <label>Option ${i} Text (Optional):</label>
+                            <input type="text" name="option_text_${newQuestionNumber}_${i}">
+                            <label>Option ${i} Image (Optional):</label>
+                            <input type="file" name="option_image_${newQuestionNumber}_${i}" accept="image/*">
+                        `).join("")}
+                        <label>Correct Answer (Required):</label>
+                        <select name="correct_answer_${newQuestionNumber}" required>
+                            <option value="">Select Correct Answer</option>
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="3">Option 3</option>
+                            <option value="4">Option 4</option>
+                        </select>
+                    </div>
+                `;
+            container.appendChild(newQuestion);
+            updateFileInputs(newQuestion);
+            reindexQuestions();
+        });
+
+    </script>
+</body>
+
+</html>

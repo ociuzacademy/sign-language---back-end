@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .category-card {
+            background: rgba(0, 0, 0, 0.515);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .lesson-card {
+            background: rgba(0, 0, 0, 0.515);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .lesson-image {
+            max-width: 200px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .action-buttons .btn {
+            margin: 5px;
+            padding: 8px 20px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: linear-gradient(135deg, #928dab 0%, #1f1c2c 100%);
+        }
+
+        .btn-delete:hover {
+            background: linear-gradient(135deg, #ff4b2b 0%, #ff416c 100%);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+            border: none;
+            color: white;
+        }
+
+        .category-text {
+            color: white !important;
+            opacity: 0.9;
+        }
+
+        .icons-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .icons-container a {
+            color: #fff;
+            font-size: 24px;
+            transition: color 0.3s ease;
+        }
+
+        .icons-container a:hover {
+            color: #928dab;
+        }
+
+        .category-card {
+            width: 100%;
+            /* Makes the button take full width */
+            padding: 20px;
+            display: block;
+            /* Ensures it behaves like a block element */
+            text-align: center;
+            border: none;
+            /* Removes default button border */
+        }
+
+        .category-card h3 {
+            color: white;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="icons-container">
+        <a href="{% url 'admin_index' %}" title="Home"><i class="fas fa-home"></i></a>
+        <a href="{% url 'login' %}" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+
+    <div class="container">
+        <h1 class="text-center mb-4">Lessons</h1>
+        <a href="{% url 'add_lesson' %}" class="btn btn-primary mb-4">Add New Lesson</a>
+
+        {% if selected_category %}
+        <h2>Lessons in Category: {{ selected_category.name }}</h2>
+        <div class="text-center">
+            <a href="{% url 'lesson_list' %}" class="btn btn-secondary mb-3">View All Categories</a>
+        </div>
+        {% for lesson in lessons %}
+        <div class="lesson-card">
+            <div class="row">
+                <div class="col-md-2">
+                    {% if lesson.icon %}
+                    <img src="{{ lesson.icon.url }}" alt="{{ lesson.name }}" class="lesson-icon img-fluid">
+                    {% endif %}
+                </div>
+                <div class="col-md-3">
+                    {% if lesson.image %}
+                    <img src="{{ lesson.image.url }}" alt="{{ lesson.name }}" class="lesson-image img-fluid">
+                    {% endif %}
+                </div>
+                <div class="col-md-5">
+                    <h3>{{ lesson.name }}</h3>
+                    <p class="category-text">Category: {{ lesson.category.name }}</p>
+                    <p>Level: {% if lesson.level %}{{ lesson.level.name }}{% else %}No Level{% endif %}</p>
+                    <p>{{ lesson.description }}</p>
+                </div>
+                <div class="col-md-2 action-buttons">
+                    <a href="{% url 'edit_lesson' lesson.id %}" class="btn btn-edit">Edit</a>
+                    <form method="post" action="{% url 'delete_lesson' lesson.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-delete"
+                            onclick="return confirm('Are you sure you want to delete this lesson?')">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <h2>Categories</h2>
+        <div class="row">
+            {% for category in categories %}
+            <div class="col-md-4">
+                <form method="GET" action="{% url 'lesson_list' %}" style="width: 100%;">
+                    <input type="hidden" name="category" value="{{ category.id }}">
+                    <button type="submit" class="category-card category-button">
+                        <h3>{{ category.name }}</h3>
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+
+        {% endif %}
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                        background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+                        color: white; border: none;">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(1);"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,220 @@
+{% extends "admin_index.html" %}
+{% block content %}
+<br>
+<br>
+<br><br>
+<div class="container my-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item" style="color: white;"><a href="{% url 'view_all_levels' %}">All Levels</a></li>
+            <li class="breadcrumb-item active" aria-current="page" style="color: white;">{{ level.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex align-items-center mb-4">
+        {% if level.icon %}
+        <img src="{{ level.icon.url }}" alt="{{ level.name }} icon" class="me-3"
+            style="height: 80px; width: 80px; object-fit: contain;">
+        {% endif %}
+        <h1 class="mb-0" style="color: white;">{{ level.name }}</h1>
+    </div>
+
+    <div class="mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Level Summary</h5>
+                <p class="card-text">
+                    <strong>Total Quizzes:</strong> {{ total_quizzes }}<br>
+                    <strong>Category Quizzes:</strong> {{ surveys|length }}<br>
+                    <strong>Level Quizzes:</strong> {{ sign_quizzes|length }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs mb-4" id="quizTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="category-tab" data-bs-toggle="tab" data-bs-target="#category-quizzes"
+                type="button" role="tab" aria-controls="category-quizzes" aria-selected="true">
+                Category Quizzes ({{ surveys|length }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sign-tab" data-bs-toggle="tab" data-bs-target="#sign-quizzes" type="button"
+                role="tab" aria-controls="sign-quizzes" aria-selected="false">
+                Level Quizzes ({{ sign_quizzes|length }})
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="quizTabsContent">
+        <!-- Category Quizzes (Surveys) -->
+        <div class="tab-pane fade show active" id="category-quizzes" role="tabpanel" aria-labelledby="category-tab">
+            {% if surveys %}
+            <div class="accordion" id="surveyAccordion">
+                {% for survey in surveys %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="survey-heading-{{ survey.id }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#survey-collapse-{{ survey.id }}" aria-expanded="false"
+                            aria-controls="survey-collapse-{{ survey.id }}">
+                            <strong>{{ survey.title }}</strong> - {{ survey.question_count }} questions
+                        </button>
+                    </h2>
+                    <div id="survey-collapse-{{ survey.id }}" class="accordion-collapse collapse"
+                        aria-labelledby="survey-heading-{{ survey.id }}" data-bs-parent="#surveyAccordion">
+                        <div class="accordion-body">
+                            <div class="mb-3">
+                                <strong>Category:</strong> {{ survey.category|default:"Not assigned" }}<br>
+                                <strong>Created:</strong> {{ survey.created_at|date:"F d, Y" }}
+                            </div>
+
+                            <h5>Questions</h5>
+                            <div class="accordion" id="questions-survey-{{ survey.id }}">
+                                {% for question in survey.questions %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="question-heading-{{ question.id }}">
+                                        <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#question-collapse-{{ question.id }}" aria-expanded="false"
+                                            aria-controls="question-collapse-{{ question.id }}">
+                                            <strong>Question {{ forloop.counter }}:</strong>
+                                            {{ question.text|default:"Image Question"|truncatechars:100 }}
+                                        </button>
+                                    </h2>
+                                    <div id="question-collapse-{{ question.id }}" class="accordion-collapse collapse"
+                                        aria-labelledby="question-heading-{{ question.id }}"
+                                        data-bs-parent="#questions-survey-{{ survey.id }}">
+                                        <div class="accordion-body">
+                                            <div class="mb-3">
+                                                {% if question.text %}
+                                                    {{ question.text }}
+                                                {% endif %}
+                                                {% if question.image_url %}
+                                                <div class="mt-2">
+                                                    <img src="{{ question.image_url }}" alt="Question Image" class="img-fluid" style="max-height: 200px;">
+                                                </div>
+                                                {% endif %}
+                                            </div>
+
+                                            <h6>Options:</h6>
+                                            <ul class="list-group">
+                                                {% for option in question.options %}
+                                                <li
+                                                    class="list-group-item {% if option.option_number == question.correct_answer %}list-group-item-success{% endif %}">
+                                                    <strong>Option {{ option.option_number }}:</strong>
+                                                    {{ option.text }}
+                                                    {% if option.image %}
+                                                    <div class="mt-2">
+                                                        <img src="{{ option.image.url }}" alt="Option Image"
+                                                            class="img-fluid" style="max-height: 100px;">
+                                                    </div>
+                                                    {% endif %}
+                                                    {% if option.option_number == question.correct_answer %}
+                                                    <span class="badge bg-success">Correct Answer</span>
+                                                    {% endif %}
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">No category quizzes found for this level.</div>
+            {% endif %}
+        </div>
+
+        <!-- Level Quizzes (SignQuizzes) -->
+        <div class="tab-pane fade" id="sign-quizzes" role="tabpanel" aria-labelledby="sign-tab">
+            {% if sign_quizzes %}
+            <div class="accordion" id="signQuizAccordion">
+                {% for quiz in sign_quizzes %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="sign-quiz-heading-{{ quiz.id }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#sign-quiz-collapse-{{ quiz.id }}" aria-expanded="false"
+                            aria-controls="sign-quiz-collapse-{{ quiz.id }}">
+                            <strong>{{ quiz.title }}</strong> - {{ quiz.question_count }} questions
+                        </button>
+                    </h2>
+                    <div id="sign-quiz-collapse-{{ quiz.id }}" class="accordion-collapse collapse"
+                        aria-labelledby="sign-quiz-heading-{{ quiz.id }}" data-bs-parent="#signQuizAccordion">
+                        <div class="accordion-body">
+                            <div class="mb-3">
+                                <strong>Created:</strong> {{ quiz.created_at|date:"F d, Y" }}
+                            </div>
+
+                            <h5>Questions</h5>
+                            <div class="accordion" id="questions-sign-quiz-{{ quiz.id }}">
+                                {% for question in quiz.questions %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header"
+                                        id="sign-question-heading-{{ question.id }}-{{ question.order }}">
+                                        <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#sign-question-collapse-{{ question.id }}-{{ question.order }}"
+                                            aria-expanded="false"
+                                            aria-controls="sign-question-collapse-{{ question.id }}-{{ question.order }}">
+                                            <strong>Question {{ question.order }}:</strong>
+                                            {{ question.text|default:"Image Question"|truncatechars:100 }}
+                                        </button>
+                                    </h2>
+                                    <div id="sign-question-collapse-{{ question.id }}-{{ question.order }}"
+                                        class="accordion-collapse collapse"
+                                        aria-labelledby="sign-question-heading-{{ question.id }}-{{ question.order }}"
+                                        data-bs-parent="#questions-sign-quiz-{{ quiz.id }}">
+                                        <div class="accordion-body">
+                                            <div class="mb-3">
+                                                <!-- {{ question.text|default:"This question doesn't have text (image
+                                                question)" }} -->
+                                                {% if question.image_url %}
+                                                <div class="mt-2">
+                                                    <img src="{{ question.image_url }}" alt="Question Image"
+                                                        class="img-fluid" style="max-height: 200px;">
+                                                </div>
+                                                {% endif %}
+                                            </div>
+
+                                            <h6>Options:</h6>
+                                            <ul class="list-group">
+                                                {% for option in question.options %}
+                                                <li
+                                                    class="list-group-item {% if option.option_number == question.correct_answer %}list-group-item-success{% endif %}">
+                                                    <strong>Option {{ option.option_number }}:</strong>
+                                                    {{ option.text }}
+                                                    {% if option.image %}
+                                                    <div class="mt-2">
+                                                        <img src="{{ option.image.url }}" alt="Option Image"
+                                                            class="img-fluid" style="max-height: 100px;">
+                                                    </div>
+                                                    {% endif %}
+                                                    {% if option.option_number == question.correct_answer %}
+                                                    <span class="badge bg-success">Correct Answer</span>
+                                                    {% endif %}
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">No level quizzes found for this level.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

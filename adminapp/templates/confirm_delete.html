@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Deletion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .confirmation-box {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .confirmation-box h2 {
+            color: #3f51b5;
+        }
+        .confirmation-box p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .confirmation-box button {
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-right: 10px;
+        }
+        .confirmation-box button:hover {
+            background-color: #e91e63;
+        }
+        .confirmation-box a {
+            color: #3f51b5;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-box">
+        <h2>Confirm Deletion</h2>
+        <p>Are you sure you want to delete the question: <strong>{{ question.text }}</strong>?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Yes, Delete</button>
+            <a href="{% url 'survey_list' %}">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

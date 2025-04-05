@@ -1,0 +1,240 @@
+{% extends 'admin_index.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="icons-container">
+        <a href="{% url 'admin_index' %}" title="Home"><i class="fas fa-home"></i></a>
+        <a href="{% url 'login' %}" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+
+    <h2>Select Questions for "{{ quiz.title }}"</h2>
+    <h3>Level: {{ quiz.level.name }}</h3>
+
+    {% if messages %}
+    <div class="success-message" id="successMessage">
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" id="questionSelectionForm">
+        {% csrf_token %}
+        
+        <div class="question-block">
+            <div class="question-heading">
+                <h3>Question Selection</h3>
+            </div>
+            <div class="question-content">
+                <div class="filter-controls">
+                    <button type="button" id="select-all">Select All</button>
+                    <button type="button" id="deselect-all">Deselect All</button>
+                </div>
+                
+                <div class="questions-list">
+                    {% if questions %}
+                        {% regroup questions by survey as survey_list %}
+                        {% for survey_group in survey_list %}
+                            <div class="survey-group">
+                                <h4 class="survey-heading">{{ survey_group.grouper.title }}</h4>
+                                {% for question in survey_group.list %}
+                                <div class="question-item">
+                                    <label class="question-checkbox">
+                                        <input type="checkbox" name="selected_questions" value="{{ question.id }}">
+                                        <span class="question-label">
+                                            <strong>{{ question.category.name }}</strong> - 
+                                            {% if question.text %}
+                                                {{ question.text|truncatechars:100 }}
+                                            {% else %}
+                                                Question {{ question.id }} (Image Question)
+                                            {% endif %}
+                                        </span>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No questions available for the selected level.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button type="submit">Create Quiz</button>
+            <a href="{% url 'create_quiz' %}" class="button secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .container {
+        background-color: #2c3e50;
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px auto;
+        max-width: 1200px;
+    }
+
+    .icons-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .icons-container a {
+        color: white;
+        font-size: 1.2em;
+    }
+
+    h2, h3, h4 {
+        color: white;
+    }
+
+    .filter-controls {
+        margin-bottom: 20px;
+        padding: 10px;
+        background-color: #34495e;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .filter-controls button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .filter-controls button:hover {
+        background-color: #2980b9;
+    }
+    
+    .questions-list {
+        max-height: 500px;
+        overflow-y: auto;
+        border: 1px solid #34495e;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #34495e;
+    }
+    
+    .survey-group {
+        margin-bottom: 20px;
+        border-bottom: 2px solid #3d566e;
+        padding-bottom: 10px;
+    }
+    
+    .survey-heading {
+        background-color: #3498db;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .question-item {
+        padding: 10px;
+        border-bottom: 1px solid #3d566e;
+        color: white;
+    }
+    
+    .question-checkbox {
+        display: flex;
+        align-items: flex-start;
+        cursor: pointer;
+        color: white;
+    }
+    
+    .question-checkbox input {
+        margin-top: 3px;
+        margin-right: 10px;
+    }
+    
+    .question-label {
+        flex: 1;
+        color: white;
+    }
+    
+    .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .button-group button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        cursor: pointer;
+    }
+    
+    .button.secondary {
+        background: #7f8c8d;
+        color: white;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .success-message {
+        background-color: #27ae60;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        display: none;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Show success message if it exists
+        const successMessage = document.getElementById('successMessage');
+        if (successMessage) {
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Select/Deselect All functionality
+        const selectAllBtn = document.getElementById('select-all');
+        const deselectAllBtn = document.getElementById('deselect-all');
+        const checkboxes = document.querySelectorAll('input[name="selected_questions"]');
+        
+        selectAllBtn.addEventListener('click', function() {
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        });
+        
+        deselectAllBtn.addEventListener('click', function() {
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        });
+        
+        // Form validation
+        document.getElementById('questionSelectionForm').addEventListener('submit', function(e) {
+            const selectedQuestions = document.querySelectorAll('input[name="selected_questions"]:checked');
+            
+            if (selectedQuestions.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one question for the quiz.');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Survey List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #928dab;
+            --secondary-color: #1f1c2c;
+            --accent-color: #4CAF50;
+            --danger-color: #f44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .icons-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .icons-container a {
+            color: #fff;
+            font-size: 24px;
+            transition: color 0.3s ease;
+        }
+
+        .icons-container a:hover {
+            color: var(--primary-color);
+        }
+
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .add-survey-btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+
+        .add-survey-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .survey-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .survey-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .survey-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .survey-card h2 {
+            margin-top: 0;
+            color: var(--secondary-color);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .survey-meta p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .delete-btn {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #fff;
+            font-size: 1.2em;
+            grid-column: 1 / -1;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .survey-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="icons-container">
+        <a href="{% url 'admin_index' %}" title="Home"><i class="fas fa-home"></i></a>
+        <a href="{% url 'login' %}" title="Logout"><i class="fas fa-sign-out-alt"></i></a>
+    </div>
+    
+    <div class="container">
+        <h1>Survey List</h1>
+        <div class="button-container">
+            <a href="{% url 'add_question' %}" class="add-survey-btn">
+                <i class="fas fa-plus"></i> Create New Survey
+            </a>
+        </div>
+        
+        <div class="survey-cards">
+            {% for survey in surveys %}
+            <div class="survey-card" onclick="location.href=`{% url 'survey_detail' survey.id %}`">
+                <h2>{{ survey.title|default:"Untitled Survey" }}</h2>
+                <div class="survey-meta">
+                    <p><strong>Category:</strong> {{ survey.category.name|default:"Uncategorized" }}</p>
+                    <p><strong>Questions:</strong> {{ survey.questions.count }}</p>
+                    <p><strong>Created:</strong> {{ survey.created_at|date:"M d, Y" }}</p>
+                </div>
+                <form method="post" action="{% url 'survey_delete' survey.id %}" onclick="event.stopPropagation();">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this survey?');">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+            {% empty %}
+            <p class="empty-state">
+                <i class="fas fa-clipboard-list" style="font-size: 2em; margin-bottom: 10px;"></i><br>
+                No surveys available. Create one to get started!
+            </p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

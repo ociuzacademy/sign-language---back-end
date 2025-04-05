@@ -1,0 +1,52 @@
+{% extends "admin_index.html" %}
+{% block content %}
+<br>
+<br>
+<br>
+<div class="container my-4">
+    <h1 class="mb-4" style="color: white;">All Levels</h1>
+
+    {% if levels %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for level in levels %}
+        <div class="col">
+            <div class="card h-100">
+                {% if level.icon %}
+                <img src="{{ level.icon.url }}" class="card-img-top" alt="{{ level.name }} icon"
+                    style="height: 200px; object-fit: contain; padding: 20px;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                    style="height: 200px;">
+                    <span class="text-muted">No Icon</span>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ level.name }}</h5>
+                    <p class="card-text">
+                        <strong>Total Quizzes:</strong> {{ level.total_quizzes }}<br>
+                        <strong>Category Quizzes:</strong> {{ level.survey_count }}<br>
+                        <strong>Level Quizzes:</strong> {{ level.sign_quiz_count }}
+                    </p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'view_level_details' level.id %}" class="btn btn-primary">View Details</a>
+                </div>
+                {% for quiz in level.quizzes.all %}
+                <div class="quiz-item">
+                    <h5>{{ quiz.title }}</h5>
+                    <a href="{% url 'delete_quiz' quiz.id %}" class="btn btn-danger"
+                        onclick="return confirm('Are you sure you want to delete this quiz?');">
+                        Delete Quiz
+                    </a>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">No levels found.</div>
+    {% endif %}
+</div>
+{% endblock %}
