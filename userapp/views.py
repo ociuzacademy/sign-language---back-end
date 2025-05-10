@@ -55,7 +55,8 @@ class LoginView(APIView):
                         "message": "User logged in successfully",
                         "user_id": str(user.id),
                         "user_email":user.email,
-                        "user_password":user.password
+                        "user_password":user.password,
+                        "user_name":user.username
                     }, status=status.HTTP_200_OK)
                 else:
                     return Response({"status": "failed", "message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
